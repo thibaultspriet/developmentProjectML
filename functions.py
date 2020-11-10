@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import pandas as pd
 import numpy as np
 import os
@@ -107,6 +107,4 @@ print(test_normalize(data_b))
 data_k_mean,data_k_var,data_k=normalize_data(data_k)
 print(test_normalize(data_b))
 
-=======
-print("binary classification")
->>>>>>> f8f824d9fbadc92bf4e2cde15e5ca11c8680f243
+

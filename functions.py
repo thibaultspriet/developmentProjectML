@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 
-#NETOOYAGE DE LA TABLE
+#NETOYAGE DE LA TABLE
 #Permet de tester si il reste des valeurs manquantes
 def test(data):
     data_na=data.isna()

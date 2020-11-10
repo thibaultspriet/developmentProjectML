@@ -3,10 +3,7 @@
 ## Git Workflow
 
 ### Prerequisite
-You need to install git, on a terminal run :
-```shell 
-brew install git
-```
+You need to install git : [download](https://git-scm.com/book/fr/v2/Démarrage-rapide-Installation-de-Git)
 
 ### Cloning the project
 ```shell

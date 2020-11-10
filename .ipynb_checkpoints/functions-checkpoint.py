@@ -1,9 +1,9 @@
-<<<<<<< HEAD
+print("binary classification")
 import pandas as pd
 import numpy as np
 import os
 
-#NETOYAGE DE LA TABLE
+#NETOOYAGE DE LA TABLE
 #Permet de tester si il reste des valeurs manquantes
 def test(data):
     data_na=data.isna()
@@ -107,6 +107,3 @@ print(test_normalize(data_b))
 data_k_mean,data_k_var,data_k=normalize_data(data_k)
 print(test_normalize(data_b))
 
-=======
-print("binary classification")
->>>>>>> f8f824d9fbadc92bf4e2cde15e5ca11c8680f243

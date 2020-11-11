@@ -1,17 +1,18 @@
-
 import pandas as pd
 import numpy as np
 import os
 
 #NETOYAGE DE LA TABLE
 #Permet de tester si il reste des valeurs manquantes
-def test(data):
+def testMissingValue(data):
     data_na=data.isna()
     for k in data_na:
         for c in data_na[k]:
             if c==True:
-                return "Il reste des valeurs manquantes"
-    return "Toutes les valeurs manquantes ont été remplacées"
+                print("Il reste des valeurs manquantes")
+                return False
+    print("Toutes les valeurs manquantes ont été remplacées")
+    return True
 
 
 #Permet de remplacer les valeurs manquantes par 
@@ -31,56 +32,58 @@ def clear_data_Float_Int(data,k,int_or_float):
                 
 #Permet de remplacer les valeurs manquantes par
 #la valeur du string qui est le plus présente des colonnes dont les valeurs ne sont pas des nombres 
-def clear_data_String(data,k):
+def clear_data_String(data,k,data_na):
     list_value={}
-    data_na=data[k].isna()
+    data_na=data_na[k]
     for value in range(len(data_na)):
-        if not data_na[value]:
+        if data_na[value]:
             if data[k][value] not in list_value:
                 list_value[data[k][value]]=0
             else:
                 list_value[data[k][value]]+=1
-    moy,Max="",0
+    moy,Max=data[k][0],0
     for value in list_value:
         if list_value[value]>Max:
             Max,moy=list_value[value],value
-    
     for value in range(len(data)):
-        if data_na[value]:
+        if not data_na[value]:
             data.at[value,k]=moy
 
 #La fonction qui prend en argument les fichiers et qui remplace les valeurs manquantes
 def clean_file(file):
     data = pd.read_csv(file)
+    data_na=data.notna()
     data_types=data.dtypes
+    for k in data:
+        for c in range(len(data_na[k])):
+            #Il est possible que certains string aient des \t ou des " ", il faut les enlever
+            if type(data[k][c])==str:
+                data.at[c,k]=data[k][c].replace(" ","")
+                data.at[c,k]=data[k][c].replace("\t","")
+                #Si un des NaN avait ce genre de caractères alors ils n'étaient pas repérés et comptaient 
+                #Pour une valeur: On modifie donc la table data_na pour des valeurs en string
+                if data[k][c]=="?":
+                    data_na.at[c,k]=False
     for index in data:
         if data_types[index]==np.object:
-            clear_data_String(data,index)
+            clear_data_String(data,index,data_na)
         else:
             if data_types[index]==np.int:
                 clear_data_Float_Int(data,index,np.int)
             else:
                 clear_data_Float_Int(data,index,np.float)
-    return data,  str(test(data))+"\nsur : " + str(file) + "\n"
-    
-data_b,test_banknote=clean_file('data_banknote_authentication.txt')
-print(test_banknote)
+    return data,testMissingValue(data)
+
+print('data_banknote_authentication.txt')
+#data_b,test_banknote=clean_file('data_banknote_authentication.txt')
+
+print('kidney_disease.csv')
 data_k,test_kidney=clean_file('kidney_disease.csv')
-print(test_kidney)
-
-def normalize_data(data):
-    for index in data:
-        print(index)
-        if data_types[index]==np.float:
-            m , v= data[index].mean(),data[index].var()
-            for value in range(len(data[index])):
-                a=data[index][value]
-                data.at[index,value]=(a-m)/v
-                print(value)
                 
 
-#NORMALISATION DU CODE
-                
+    
+    
+#NORMALISATION DU CODE                
 #Permet de vérifier qu'on a normalisé et centré la table
 def test_normalize(data):
     data_mean,data_var=data.mean(),data.std()
@@ -88,10 +91,13 @@ def test_normalize(data):
     for index in data:
         if data_types[index]==np.float:
             if abs(data[index].mean())>1e-10:
-                return "La table n'est pas centrée"
+                print("La table n'est pas centrée")
+                return False
             if np.abs(data[index].std()-1)>1e-10:
-                return "La table n'est pas normalisée"
-    return "La table est normalisée\n"
+                print("La table n'est pas normalisée")
+                return False
+    print("La table est normalisée")
+    return True
 
 #Normalise et centre la table
 def normalize_data(data):
@@ -100,11 +106,37 @@ def normalize_data(data):
     for index in data:
         if data_types[index]==np.float:
             data[index]=(data[index]-data_mean[index])/data_var[index]
-    return data_mean,data_var,data
+    return data_mean,data_var,data,test_normalize(data)
 
-data_b_mean,data_b_var,data_b=normalize_data(data_b)
-print(test_normalize(data_b))
-data_k_mean,data_k_var,data_k=normalize_data(data_k)
-print(test_normalize(data_b))
+print('\ndata_banknote_authentication.txt')
+data_b_mean,data_b_var,data_b,test_nb=normalize_data(data_b)
+
+print('kidney_disease.csv')
+data_k_mean,data_k_var,data_k,test_nk=normalize_data(data_k)
+
+#ON REMPLACE LES STRING PAR DES INTS
+def replace_by_Int(data):
+    data_types=data.dtypes
+    for k in data:
+        if data_types[k]==np.object:
+            list_value={}
+            data_na=data[k].isna()
+            number=0
+            for value in range(len(data_na)):
+                if not data_na[value]:
+                    if data[k][value] not in list_value:
+                        list_value[data[k][value]]=number
+                        number+=1
+                    data.at[value,k]=list_value[data[k][value]]
+            data[k] = data[k].astype(int)
+
+
+replace_by_Int(data_k)
+print("\ntypes de la table\n : ",data_k.dtypes)
+replace_by_Int(data_b)
+print("\ntypes de la table : ",data_b.dtypes)
+    
+
+
 
 

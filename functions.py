@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import os
 
 #NETOYAGE DE LA TABLE
 #Permet de tester si il reste des valeurs manquantes
@@ -75,7 +74,7 @@ def clean_file(file):
     return data,testMissingValue(data)
 
 print('data_banknote_authentication.txt')
-#data_b,test_banknote=clean_file('data_banknote_authentication.txt')
+data_b,test_banknote=clean_file('data_banknote_authentication.txt')
 
 print('kidney_disease.csv')
 data_k,test_kidney=clean_file('kidney_disease.csv')

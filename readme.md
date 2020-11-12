@@ -24,3 +24,16 @@ Before edditing your functions, get the latest changes from the remote repositor
 ```shell 
 git pull origin master
 ```
+
+## Machine learning workflow
+### Import data
+### Clean data
+* Replace missing values
+* Replace categorical values by int
+### Split data
+* Training and test if there is not parameter to adjust model
+* Training / Cross Validation / Test if there is paramater to adjust model
+### Train model
+* Get the classifier
+### Validate model
+* Test the classifier on the model

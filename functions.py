@@ -1,5 +1,10 @@
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
+
+###############
+# Clean data
+###############
 
 #NETOYAGE DE LA TABLE
 #Permet de tester si il reste des valeurs manquantes
@@ -134,8 +139,48 @@ replace_by_Int(data_k)
 print("\ntypes de la table\n : ",data_k.dtypes)
 replace_by_Int(data_b)
 print("\ntypes de la table : ",data_b.dtypes)
-    
 
 
+###############
+# End clean data
+###############
+
+
+###############
+# Split data
+###############
+
+# Author : SPRIET Thibault
+def train_test(X,y,test_size,crossValidation,cross_size=None):
+    """Split the datasst in two subsets train and test
+    Parameters:
+    ----------
+    X : DataFrame
+    y : DataFrame
+    test_size : float
+        between 0 and 1
+    crossValidation : bool
+    cross_size : float,optional
+
+    Returns:
+    --------
+    X_train : DataFrame
+    X_test : DataFrame
+    y_train : DataFrame
+    y_test : DataFrame
+    """
+
+    [X_train, X_test, y_train, y_test] = train_test_split(X,y,test_size=test_size)
+    if crossValidation:
+        if cross_size == None :
+            raise ValueError("cross_size must be specified when crossValidation is True")
+        print(f'X_train size : {X_train.shape[0]} ; pourcentage : {cross_size/(1-test_size)}')
+        [X_train, X_cross, y_train, y_cross] = train_test_split(X_train,y_train,test_size=cross_size/(1-test_size))
+        return [X_train,X_cross,X_test,y_train,y_cross,y_test]
+    return [X_train,X_test,y_train,y_test]
+
+###############
+# End split data
+###############
 
 

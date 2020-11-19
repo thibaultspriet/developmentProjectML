@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
 
 ###############
 # Clean data
@@ -78,11 +79,11 @@ def clean_file(file):
                 clear_data_Float_Int(data,index,np.float)
     return data,testMissingValue(data)
 
-print('data_banknote_authentication.txt')
-data_b,test_banknote=clean_file('data_banknote_authentication.txt')
+#print('data_banknote_authentication.txt')
+#data_b,test_banknote=clean_file('data_banknote_authentication.txt')
 
-print('kidney_disease.csv')
-data_k,test_kidney=clean_file('kidney_disease.csv')
+#print('kidney_disease.csv')
+#data_k,test_kidney=clean_file('kidney_disease.csv')
                 
 
     
@@ -112,11 +113,11 @@ def normalize_data(data):
             data[index]=(data[index]-data_mean[index])/data_var[index]
     return data_mean,data_var,data,test_normalize(data)
 
-print('\ndata_banknote_authentication.txt')
-data_b_mean,data_b_var,data_b,test_nb=normalize_data(data_b)
+#print('\ndata_banknote_authentication.txt')
+#data_b_mean,data_b_var,data_b,test_nb=normalize_data(data_b)
 
-print('kidney_disease.csv')
-data_k_mean,data_k_var,data_k,test_nk=normalize_data(data_k)
+#print('kidney_disease.csv')
+#data_k_mean,data_k_var,data_k,test_nk=normalize_data(data_k)
 
 #ON REMPLACE LES STRING PAR DES INTS
 def replace_by_Int(data):
@@ -135,10 +136,10 @@ def replace_by_Int(data):
             data[k] = data[k].astype(int)
 
 
-replace_by_Int(data_k)
-print("\ntypes de la table\n : ",data_k.dtypes)
-replace_by_Int(data_b)
-print("\ntypes de la table : ",data_b.dtypes)
+#replace_by_Int(data_k)
+#print("\ntypes de la table\n : ",data_k.dtypes)
+#replace_by_Int(data_b)
+#print("\ntypes de la table : ",data_b.dtypes)
 
 
 ###############
@@ -181,6 +182,64 @@ def train_test(X,y,test_size,crossValidation,cross_size=None):
 
 ###############
 # End split data
+###############
+
+
+###############
+# Train models
+###############
+
+# Author : SPRIET Thibault
+def trainSVM(X,y):
+    """train an SVM classifier
+
+    Parameters
+    ----------
+    X : Array
+        dimension : n_samples x n_feature
+    y : Array
+        dimension : N_samples x 1. Labels
+
+    Returns
+    -------
+    object
+        the train classifier
+    """
+    clf = SVC(kernel="linear")
+    clf.fit(X,y)
+    return clf
+
+
+###############
+# End train models
+###############
+
+###############
+# Test models
+###############
+
+# Author : SPRIET Thibault
+def testSVM(SVMclf,X_test):
+    """Test the SVM classifier
+
+    Parameters
+    ----------
+    SVMclf : object
+        the trained classifier
+    X_test : Array
+        n_samples x n_feature
+
+    Returns
+    -------
+    Array
+        classification labels
+    """
+    return SVMclf.predict(X_test)
+
+
+
+###############
+# End test models
 ###############
 
 

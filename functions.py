@@ -2,11 +2,11 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
+import mimetypes
 
 ###############
 # Clean data
 ###############
-
 #NETOYAGE DE LA TABLE
 #Permet de tester si il reste des valeurs manquantes
 def testMissingValue(data):
@@ -16,7 +16,6 @@ def testMissingValue(data):
             if c==True:
                 print("Il reste des valeurs manquantes")
                 return False
-    print("Toutes les valeurs manquantes ont été remplacées")
     return True
 
 
@@ -33,8 +32,6 @@ def clear_data_Float_Int(data,k,int_or_float):
         for value in range(len(data_na)):
             if data_na[value]:
                 data.at[value,k]=moy
-
-                
 #Permet de remplacer les valeurs manquantes par
 #la valeur du string qui est le plus présente des colonnes dont les valeurs ne sont pas des nombres 
 def clear_data_String(data,k,data_na):
@@ -54,9 +51,58 @@ def clear_data_String(data,k,data_na):
         if not data_na[value]:
             data.at[value,k]=moy
 
+
+#NORMALISATION DU CODE                
+#Permet de vérifier qu'on a normalisé et centré la table
+def test_normalize(data):
+    data_mean,data_var=data.mean(),data.std()
+    data_types=data.dtypes
+    for index in data:
+        if data_types[index]==np.float:
+            if abs(data[index].mean())>1e-10:
+                print("La table n'est pas centrée")
+                return False
+            if np.abs(data[index].std()-1)>1e-10:
+                print("La table n'est pas normalisée")
+                return False
+    return True
+
+#Normalise et centre la table
+def normalize_data(data):
+    data_mean,data_var=data.mean(),data.std()
+    data_types=data.dtypes
+    for index in data:
+        if data_types[index]==np.float:
+            data[index]=(data[index]-data_mean[index])/data_var[index]
+    return data,test_normalize(data)
+
+#ON REMPLACE LES STRING PAR DES INTS
+def replace_by_Int(data):
+    data_types=data.dtypes
+    for k in data:
+        if data_types[k]==np.object:
+            list_value={}
+            data_na=data[k].isna()
+            number=0
+            for value in range(len(data_na)):
+                if not data_na[value]:
+                    if data[k][value] not in list_value:
+                        list_value[data[k][value]]=number
+                        number+=1
+                    data.at[value,k]=list_value[data[k][value]]
+            data[k] = data[k].astype(int)
+
+
 #La fonction qui prend en argument les fichiers et qui remplace les valeurs manquantes
 def clean_file(file):
-    data = pd.read_csv(file)
+    print('---START CLEANING : ',file,'---')
+    #Ici si ce n'est pas un fichier csv on suppose qu'il n'y a pas forcément
+    #les noms de colonnes il faut donc éciter que la première ligne devienne
+    #le header
+    if file[-3:] != 'csv':
+        data = pd.read_csv(file,header=None)
+    else:
+        data=pd.read_csv(file)
     data_na=data.notna()
     data_types=data.dtypes
     for k in data:
@@ -77,69 +123,22 @@ def clean_file(file):
                 clear_data_Float_Int(data,index,np.int)
             else:
                 clear_data_Float_Int(data,index,np.float)
-    return data,testMissingValue(data)
-
-#print('data_banknote_authentication.txt')
-#data_b,test_banknote=clean_file('data_banknote_authentication.txt')
-
-#print('kidney_disease.csv')
-#data_k,test_kidney=clean_file('kidney_disease.csv')
-                
-
-    
-    
-#NORMALISATION DU CODE                
-#Permet de vérifier qu'on a normalisé et centré la table
-def test_normalize(data):
-    data_mean,data_var=data.mean(),data.std()
-    data_types=data.dtypes
-    for index in data:
-        if data_types[index]==np.float:
-            if abs(data[index].mean())>1e-10:
-                print("La table n'est pas centrée")
-                return False
-            if np.abs(data[index].std()-1)>1e-10:
-                print("La table n'est pas normalisée")
-                return False
+    if not testMissingValue(data):
+            return data
+    print("Toutes les valeurs manquantes ont été remplacées")
+    data,test_normalize=normalize_data(data)
+    if not test_normalize:
+            return data_mean,data_var,data
     print("La table est normalisée")
-    return True
+    replace_by_Int(data)
+    print('---END CLEANING :',file,'---\n')
+    return data
 
-#Normalise et centre la table
-def normalize_data(data):
-    data_mean,data_var=data.mean(),data.std()
-    data_types=data.dtypes
-    for index in data:
-        if data_types[index]==np.float:
-            data[index]=(data[index]-data_mean[index])/data_var[index]
-    return data_mean,data_var,data,test_normalize(data)
+data_k = clean_file('kidney_disease.csv')
+data_b = clean_file('data_banknote_authentication.txt')
 
-#print('\ndata_banknote_authentication.txt')
-#data_b_mean,data_b_var,data_b,test_nb=normalize_data(data_b)
-
-#print('kidney_disease.csv')
-#data_k_mean,data_k_var,data_k,test_nk=normalize_data(data_k)
-
-#ON REMPLACE LES STRING PAR DES INTS
-def replace_by_Int(data):
-    data_types=data.dtypes
-    for k in data:
-        if data_types[k]==np.object:
-            list_value={}
-            data_na=data[k].isna()
-            number=0
-            for value in range(len(data_na)):
-                if not data_na[value]:
-                    if data[k][value] not in list_value:
-                        list_value[data[k][value]]=number
-                        number+=1
-                    data.at[value,k]=list_value[data[k][value]]
-            data[k] = data[k].astype(int)
-
-
-#replace_by_Int(data_k)
-#print("\ntypes de la table\n : ",data_k.dtypes)
-#replace_by_Int(data_b)
-#print("\ntypes de la table : ",data_b.dtypes)
+data_k.to_csv('kidney_disease_cleaned.csv')
+data_b.to_csv('data_banknote_cleaned.csv')
 
 
 ###############

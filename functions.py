@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 import mimetypes
+from sklearn.model_selection import cross_val_score
 
 ###############
 # Clean data
@@ -189,7 +190,7 @@ def train_test(X,y,test_size,crossValidation,cross_size=None):
 ###############
 
 # Author : SPRIET Thibault
-def trainSVM(X,y):
+def trainSVMlinear(X,y):
     """train an SVM classifier
 
     Parameters
@@ -205,6 +206,21 @@ def trainSVM(X,y):
         the train classifier
     """
     clf = SVC(kernel="linear")
+    clf.fit(X,y)
+    return clf
+
+def trainSVMpoly(X,y,degree,gamma,r):
+    clf = SVC(kernel="poly",degree = degree,gamma = gamma,coef0 = r)
+    clf.fit(X,y)
+    return clf
+
+def trainSVMrbf(X,y,gamma):
+    clf = SVC(kernel="rbf",gamma = gamma)
+    clf.fit(X,y)
+    return clf
+
+def trainSVMsigmoid(X,y,gamma):
+    clf = SVC(kernel="sigmoid",gamma = gamma)
     clf.fit(X,y)
     return clf
 
@@ -237,8 +253,58 @@ def testSVM(SVMclf,X_test):
 
 
 
+
+
 ###############
 # End test models
 ###############
+
+###############
+# Cross Validation
+###############
+
+def CrossValidation(X,y,degree,gamma,r,cv):
+    """Find the best classifier with a cross validation
+    
+    Parameters
+    ----------
+    X : Array
+        dimension : n_samples x n_feature
+    y : Array
+        dimension : N_samples x 1. Labels
+    degree,gamma,r : parameters of the kernels
+    cv : a cv-crossed validation 
+        (fit a model and compute the score 5 consecutive times (with different splits each time))
+    
+    Returns
+    -------
+    Best_mean : float
+        the best mean
+    Best_std : float
+        the std of the best classifier
+    Best_Classifier : string
+        the svm classifier with the best mean
+    
+    """
+    linear_clf = cross_val_score(trainSVMlinear(X,y), X, y, cv=cv,scoring='f1_macro')
+    poly_clf = cross_val_score(trainSVMpoly(X,y,degree,gamma,r), X, y, cv=cv,scoring='f1_macro')
+    rbf_clf = cross_val_score(trainSVMrbf(X,y,gamma), X, y, cv=cv,scoring='f1_macro')
+    sigmoid_clf = cross_val_score(trainSVMsigmoid(X,y,gamma), X, y, cv=cv,scoring='f1_macro')
+    Mean = [linear_clf.mean(),poly_clf.mean(),rbf_clf.mean(),sigmoid_clf.mean()]
+    Std = [linear_clf.std(),poly_clf.std(),rbf_clf.std(),sigmoid_clf.std()]
+    Classifier = ['linear','poly','rbf','sigmoid']
+    Best_mean = 0
+    Best_std = 0
+    Best_classifier = Classifier[0]
+    for k in range(len(Mean)):
+        if Mean[k]>Best_mean:
+            Best_mean = Mean[k]
+            Best_std = Std[k]
+            Best_Classifier = Classifier[k]
+    print("The best classifier is %0.2f : Accuracy: %0.2f (+/- %0.2f)" % (Best_Classifier, Best_mean, Best_std * 2))
+    return Best_mean, Best_std, Best_Classifier
+            
+    
+
 
 

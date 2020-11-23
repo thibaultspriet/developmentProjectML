@@ -5,7 +5,9 @@ import seaborn as sns
 
 from sklearn.model_selection import train_test_split,cross_val_score
 from sklearn.svm import SVC
-from sklearn.metrics import confusion_matrix, accuracy_score, f1_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix, accuracy_score, f1_score, recall_score
+
 
 import mimetypes
 
@@ -24,7 +26,7 @@ def testMissingValue(data):
     return True
 
 
-#Permet de remplacer les valeurs manquantes par 
+#Permet de remplacer les valeurs manquantes par
 #la moyenne des colonnes dont les valeurs sont des float ou des int
 def clear_data_Float_Int(data,k,int_or_float):
         moy=data[k].mean()
@@ -38,7 +40,7 @@ def clear_data_Float_Int(data,k,int_or_float):
             if data_na[value]:
                 data.at[value,k]=moy
 #Permet de remplacer les valeurs manquantes par
-#la valeur du string qui est le plus présente des colonnes dont les valeurs ne sont pas des nombres 
+#la valeur du string qui est le plus présente des colonnes dont les valeurs ne sont pas des nombres
 def clear_data_String(data,k,data_na):
     list_value={}
     data_na=data_na[k]
@@ -57,7 +59,7 @@ def clear_data_String(data,k,data_na):
             data.at[value,k]=moy
 
 
-#NORMALISATION DU CODE                
+#NORMALISATION DU CODE
 #Permet de vérifier qu'on a normalisé et centré la table
 def test_normalize(data):
     data_mean,data_var=data.mean(),data.std()
@@ -116,7 +118,7 @@ def clean_file(file):
             if type(data[k][c])==str:
                 data.at[c,k]=data[k][c].replace(" ","")
                 data.at[c,k]=data[k][c].replace("\t","")
-                #Si un des NaN avait ce genre de caractères alors ils n'étaient pas repérés et comptaient 
+                #Si un des NaN avait ce genre de caractères alors ils n'étaient pas repérés et comptaient
                 #Pour une valeur: On modifie donc la table data_na pour des valeurs en string
                 if data[k][c]=="?":
                     data_na.at[c,k]=False
@@ -214,6 +216,7 @@ def train_test(X,y,test_size,crossValidation,cross_size=None):
 # Train models
 ###############
 
+#SVM classifiers
 # Author : SPRIET Thibault
 def trainSVMlinear(X,y):
     """train an SVM classifier
@@ -250,6 +253,14 @@ def trainSVMsigmoid(X,y,gamma):
     return clf
 
 
+
+#Logistic Regression
+
+def trainLogisticRegression(X,y) :
+    clf = LogisticRegression()
+    clf.fit(X, y)
+    return(clf)
+
 ###############
 # End train models
 ###############
@@ -277,7 +288,22 @@ def testSVM(SVMclf,X_test):
     return SVMclf.predict(X_test)
 
 
+def testLogReg(LRclf, X_test) :
+    """ Test the Logistic Regression
 
+    Parameters
+    ----------
+    LRclf : object
+        the trained classifier
+    X_test : Array
+        n_samples x n_features
+
+    Returns
+    -------
+    Array
+        classification labels
+    """
+    return(LRclf.predict(X_test))
 
 
 ###############
@@ -290,7 +316,7 @@ def testSVM(SVMclf,X_test):
 
 def CrossValidation(X,y,degree,gamma,r,cv):
     """Find the best classifier with a cross validation
-    
+
     Parameters
     ----------
     X : Array
@@ -298,9 +324,9 @@ def CrossValidation(X,y,degree,gamma,r,cv):
     y : Array
         dimension : N_samples x 1. Labels
     degree,gamma,r : parameters of the kernels
-    cv : a cv-crossed validation 
+    cv : a cv-crossed validation
         (fit a model and compute the score 5 consecutive times (with different splits each time))
-    
+
     Returns
     -------
     Best_mean : float
@@ -309,7 +335,7 @@ def CrossValidation(X,y,degree,gamma,r,cv):
         the std of the best classifier
     Best_Classifier : string
         the svm classifier with the best mean
-    
+
     """
     linear_clf = cross_val_score(trainSVMlinear(X,y), X, y, cv=cv,scoring='f1_macro')
     poly_clf = cross_val_score(trainSVMpoly(X,y,degree,gamma,r), X, y, cv=cv,scoring='f1_macro')
@@ -328,7 +354,7 @@ def CrossValidation(X,y,degree,gamma,r,cv):
             Best_Classifier = Classifier[k]
     print("The best classifier is %0.2f : Accuracy: %0.2f (+/- %0.2f)" % (Best_Classifier, Best_mean, Best_std * 2))
     return Best_mean, Best_std, Best_Classifier
-            
+
 
 ###############
 # End Cross Validation
@@ -373,8 +399,9 @@ def validateModel(y,y_pred):
         predicted labels
     """
     acc = accuracy_score(y,y_pred,normalize=True)*100
+    rec = recall_score(y,y_pred, average = 'binary') * 100
     f1 = f1_score(y,y_pred)
-    print(f'Your model has an accuracy of : {acc}%\nYour model\'s F1 score = {f1} ')
+    print(f'Your model has an accuracy of : {acc}%\nYour model has a recall of : {rec}%\nYour model\'s F1 score = {f1} ')
 
 
 ###############

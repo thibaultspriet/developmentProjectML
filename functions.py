@@ -1,9 +1,13 @@
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split,cross_val_score
 from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix, accuracy_score, f1_score
+
 import mimetypes
-from sklearn.model_selection import cross_val_score
 
 ###############
 # Clean data
@@ -135,11 +139,32 @@ def clean_file(file):
     print('---END CLEANING :',file,'---\n')
     return data
 
-data_k = clean_file('kidney_disease.csv')
-data_b = clean_file('data_banknote_authentication.txt')
+#data_k = clean_file('kidney_disease.csv')
+#data_b = clean_file('data_banknote_authentication.txt')
 
-data_k.to_csv('kidney_disease_cleaned.csv')
-data_b.to_csv('data_banknote_cleaned.csv')
+#data_k.to_csv('kidney_disease_cleaned.csv')
+#data_b.to_csv('data_banknote_cleaned.csv')
+
+# Author : Thibault Spriet
+def getDataLabels(data):
+    """Gives the data and labels in two different df
+
+    Parameters
+    ----------
+    data : DataFrame
+        Cleaned data (labels in the last column)
+
+    Returns
+    -------
+    tuple(DataFrame)
+        the data and the labels
+    """
+    if "id" in data.columns:
+        data = data.drop("id",axis=1)
+    labels = data.iloc[:,-1]
+    dataValue = data.iloc[:,:data.shape[1]-1]
+    return dataValue,labels
+
 
 
 ###############
@@ -304,7 +329,54 @@ def CrossValidation(X,y,degree,gamma,r,cv):
     print("The best classifier is %0.2f : Accuracy: %0.2f (+/- %0.2f)" % (Best_Classifier, Best_mean, Best_std * 2))
     return Best_mean, Best_std, Best_Classifier
             
-    
+
+###############
+# End Cross Validation
+###############
 
 
 
+###############
+# Validate model
+###############
+
+def confusionMatrix(y,y_predicted,title=None):
+    """plot the confusion matrix
+
+    Parameters
+    ----------
+    y : Array
+        true labels
+    y_predicted : Array
+        predicted labels
+    title : string, optional
+        title of the matrix, by default None
+
+    Returns
+    -------
+    subplot
+        matrix confusion
+    """
+    conf = confusion_matrix(y, y_predicted)
+    ax = sns.heatmap(conf,annot=True)
+    ax.set_title(title)
+    return ax
+
+def validateModel(y,y_pred):
+    """Print relevant pieces of information to evaluate a model
+
+    Parameters
+    ----------
+    y : Array
+        true labels
+    y_pred : Array
+        predicted labels
+    """
+    acc = accuracy_score(y,y_pred,normalize=True)*100
+    f1 = f1_score(y,y_pred)
+    print(f'Your model has an accuracy of : {acc}%\nYour model\'s F1 score = {f1} ')
+
+
+###############
+# End Validate model
+###############

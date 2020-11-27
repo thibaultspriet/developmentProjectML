@@ -3,10 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from sklearn.model_selection import train_test_split,cross_val_score
+from sklearn.model_selection import train_test_split,cross_val_score, ShuffleSplit
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, accuracy_score, f1_score, recall_score
+
 
 
 import mimetypes
@@ -252,6 +253,28 @@ def trainSVMsigmoid(X,y,gamma):
     clf.fit(X,y)
     return clf
 
+# Author : Thibault Spriet
+def trainSVM(X,y,kernel="linear"):
+    """train an SVM classifier
+
+    Parameters
+    ----------
+    X : DataFrame
+        data features
+    y : Serie
+        labels
+    kernel : string
+        accepted : linear, poly, rbf, sigmoid
+
+    Returns
+    -------
+    Object
+        trained classifier
+    """
+    clf = SVC(kernel=kernel)
+    clf.fit(X,y)
+    return clf
+
 
 
 #Logistic Regression
@@ -354,6 +377,41 @@ def CrossValidation(X,y,degree,gamma,r,cv):
             Best_Classifier = Classifier[k]
     print("The best classifier is %0.2f : Accuracy: %0.2f (+/- %0.2f)" % (Best_Classifier, Best_mean, Best_std * 2))
     return Best_mean, Best_std, Best_Classifier
+
+# Author : Thibault Spriet
+def crossValidationProcedure(clf,X,y,parameter,values):
+    """return best trained classifier
+
+    Parameters
+    ----------
+    clf : Object
+        classifier
+    X : DataFrame
+        Cross validation data
+    y : Serie
+        Cross validation labels
+    parameter : string
+        name of parameter to tune
+    values : list
+        allowed values of the parameter
+
+    Returns
+    -------
+    Object
+        classifier
+    """
+    cvp = ShuffleSplit(n_splits=1000, test_size=1/3, train_size=2/3)
+
+    # Loop on the max_depth parameter and compute median RMSE
+    tab_measure = np.zeros(len(values))
+    for i in range(len(values)):
+        params = {parameter : values[i]}
+        classifier = clf.set_params(**params)
+        tab_measure[i] = np.median(cross_val_score(classifier, X, y, scoring='accuracy', cv=cvp))
+    index = np.argmax(tab_measure)
+    print(f'best {parameter} = {values[index]}')
+    return clf.set_params(**{parameter:values[index]}).fit(X,y)
+
 
 
 ###############

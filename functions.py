@@ -8,6 +8,11 @@ from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, accuracy_score, f1_score, recall_score
 
+from sklearn.decomposition import PCA
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+
 
 
 import mimetypes
@@ -180,8 +185,8 @@ def getDataLabels(data):
 ###############
 
 # Author : SPRIET Thibault
-def train_test(X,y,test_size,crossValidation,cross_size=None):
-    """Split the datasst in two subsets train and test
+def train_test(X,y,test_size,crossValidation, cross_size=None):
+    """Split the dataset in two subsets train and test
     Parameters:
     ----------
     X : DataFrame
@@ -210,6 +215,38 @@ def train_test(X,y,test_size,crossValidation,cross_size=None):
 
 ###############
 # End split data
+###############
+
+
+###############
+# PCA
+###############
+
+def PCA(X_train, X_test) :
+    '''Applies the pca algorithm on the dataset.
+    Parameters:
+    ----------
+    X_train : DataFrame
+    X_test : DataFrame
+
+    Returns:
+    --------
+    X_train_PCA : DataFrame
+    X_test_PCA : DataFrame
+    '''
+    X = np.concatenate(X_train, X_test)
+
+    pca = PCA(n_components = 'mle') # we let the algorithm decide of the optimal number of components
+    pca.fit(X)
+    X = pca.transform(X)
+
+    X_train_PCA = X[:len(X_train)]
+    X_test_PCA = X[len(X_train):]
+    return(X_train_PCA, X_test_PCA)
+
+
+###############
+# End PCA
 ###############
 
 
@@ -284,6 +321,52 @@ def trainLogisticRegression(X,y) :
     clf.fit(X, y)
     return(clf)
 
+
+
+# Fonction simplificatrice
+def maxl(l) :
+    max = l[0]
+    i = 0
+    for k in range(len(l)) :
+        if l[k] > max :
+            max = l[k]
+            i = k
+    return(i)
+
+# Decision forest
+def trainDecisionForest(X,y,n_trees) :
+    # Optimization of the depth of the trees using cross-validation
+
+    # Define the cvp (cross-validation procedure)
+    cvp = ShuffleSplit(n_splits=1000, test_size=1/3, train_size=2/3)
+
+    # Define the max depths between 1 and 10
+    n_depths = 10
+    depths = linspace(1, 10, n_depths)
+
+    # Loop on the max_depth parameter and compute accuracy
+    tab_accuracy_tree = zeros(n_depths)
+    for i in range(n_depths):
+        class_tree = DecisionTreeClassifier(max_depth=depths[i])
+        tab_accuracy_tree[i] = median(cross_val_score(class_tree, X, y, scoring='accuracy', cv=cvp))
+    plot(depths, tab_RMSE_tree)
+
+    opt = maxl(tab_RMSE_tree) + 1 # depth for which we get the maximum accuracy
+
+    # Train Decision forest :
+    class_forest = RandomForestClassifier(n_estimators=n_trees, max_depth=opt)
+    class_forest.fit(X, y)
+    return(class_forest)
+
+
+
+# Ada Boost classifier
+def trainAdaBoost(X,y,n_trees):
+    class_ada = AdaBoostClassifier(n_estimators=n_trees)
+    class_ada.fit(X,y)
+    return(class_ada)
+
+
 ###############
 # End train models
 ###############
@@ -327,6 +410,47 @@ def testLogReg(LRclf, X_test) :
         classification labels
     """
     return(LRclf.predict(X_test))
+
+
+def testDecisionForest(DFclf, X_test) :
+    return(DFclf.predict(X_train))
+
+
+def testAdaBoost(ABclf, X_test) :
+    return(ABclf.predict(X_test))
+
+
+def testKmeans(X_train, y_train, X_test) :
+    """ We apply the kmeans algorithm on the whole dataset, and we look at the repartition of the train part in the clusters. We then classify X_test thanks to the clusters and their caracteristics."""
+
+    # Kmeans algorithm on the whole dataset
+    X = np.concatenate(X_train, X_test)
+    kmeans = KMeans(n_clusters=2).fit(X)
+    lab = kmeans.labels_
+
+    # We look at the repartition of X_train in the clusters
+    c0 = 0
+    c1 = 0
+    for k in range(len(X_train)) :
+        if lab[k] == 0 :
+            c0 += y_train[k]
+        else :
+            c1 += y_train[k]
+    if c0 > c1 : # if we got more y_train = 0 in the cluster 1
+        c0 = 1
+        c1 = 0
+    else : # if we got more y_train = 0 in the cluster 0
+        c0 = 0
+        c1 = 1
+
+    # Classification of X_test
+    y_test = []
+    for k in range(len(X_train),len(X)) :
+        if lab[k] == 0 :
+            y_test += [c0]
+        else :
+            y_test += [c1]
+    return(y_test)
 
 
 ###############

@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split,cross_val_score, ShuffleSpl
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, accuracy_score, f1_score, recall_score
+import statistics as s
 
 from sklearn.decomposition import PCA
 
@@ -342,22 +343,21 @@ def trainDecisionForest(X,y,n_trees) :
 
     # Define the max depths between 1 and 10
     n_depths = 10
-    depths = linspace(1, 10, n_depths)
+    depths = np.linspace(1, 10, n_depths)
 
     # Loop on the max_depth parameter and compute accuracy
-    tab_accuracy_tree = zeros(n_depths)
+    tab_accuracy_tree = np.zeros(n_depths)
     for i in range(n_depths):
         class_tree = DecisionTreeClassifier(max_depth=depths[i])
-        tab_accuracy_tree[i] = median(cross_val_score(class_tree, X, y, scoring='accuracy', cv=cvp))
-    plot(depths, tab_RMSE_tree)
+        tab_accuracy_tree[i] = s.median(cross_val_score(class_tree, X, y, scoring='accuracy', cv=cvp))
+    #plot(depths, tab_accuracy_tree)
 
-    opt = maxl(tab_RMSE_tree) + 1 # depth for which we get the maximum accuracy
+    opt = maxl(tab_accuracy_tree) + 1 # depth for which we get the maximum accuracy
 
     # Train Decision forest :
-    class_forest = RandomForestClassifier(n_estimators=n_trees, max_depth=opt)
+    class_forest = RandomForestClassifier(n_estimators=n_trees, max_depth=3)
     class_forest.fit(X, y)
     return(class_forest)
-
 
 
 # Ada Boost classifier

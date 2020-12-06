@@ -423,7 +423,7 @@ def testAdaBoost(ABclf, X_test) :
 
 def testKmeans(X_train, y_train, X_test) :
     """ We apply the kmeans algorithm on the whole dataset, and we look at the repartition of the train part in the clusters. We then classify X_test thanks to the clusters and their caracteristics."""
-    
+
     # Kmeans algorithm on the whole dataset
     X = np.concatenate((X_train, X_test))
     kmeans = KMeans(n_clusters=2).fit(X)

@@ -14,7 +14,7 @@ from sklearn.decomposition import PCA
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 
-
+from sklearn.cluster import KMeans
 
 import mimetypes
 
@@ -235,7 +235,7 @@ def PCA(X_train, X_test) :
     X_train_PCA : DataFrame
     X_test_PCA : DataFrame
     '''
-    X = np.concatenate(X_train, X_test)
+    X = np.concatenate((X_train, X_test))
 
     pca = PCA(n_components = 'mle') # we let the algorithm decide of the optimal number of components
     pca.fit(X)
@@ -413,7 +413,7 @@ def testLogReg(LRclf, X_test) :
 
 
 def testDecisionForest(DFclf, X_test) :
-    return(DFclf.predict(X_train))
+    return(DFclf.predict(X_test))
 
 
 def testAdaBoost(ABclf, X_test) :
@@ -424,7 +424,7 @@ def testKmeans(X_train, y_train, X_test) :
     """ We apply the kmeans algorithm on the whole dataset, and we look at the repartition of the train part in the clusters. We then classify X_test thanks to the clusters and their caracteristics."""
 
     # Kmeans algorithm on the whole dataset
-    X = np.concatenate(X_train, X_test)
+    X = np.concatenate((X_train, X_test))
     kmeans = KMeans(n_clusters=2).fit(X)
     lab = kmeans.labels_
 
@@ -433,9 +433,9 @@ def testKmeans(X_train, y_train, X_test) :
     c1 = 0
     for k in range(len(X_train)) :
         if lab[k] == 0 :
-            c0 += y_train[k]
+            c0 += np.array(y_train)[k]
         else :
-            c1 += y_train[k]
+            c1 += np.array(y_train)[k]
     if c0 > c1 : # if we got more y_train = 0 in the cluster 1
         c0 = 1
         c1 = 0
@@ -444,12 +444,14 @@ def testKmeans(X_train, y_train, X_test) :
         c1 = 1
 
     # Classification of X_test
-    y_test = []
+    y_test = np.zeros(len(X_test))
+    i = 0
     for k in range(len(X_train),len(X)) :
         if lab[k] == 0 :
-            y_test += [c0]
+            y_test[i] = c0
         else :
-            y_test += [c1]
+            y_test[i] = c1
+        i += 1
     return(y_test)
 
 

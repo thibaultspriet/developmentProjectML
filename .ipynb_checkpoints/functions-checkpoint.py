@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from sklearn.cluster import KMeans
 from sklearn.model_selection import train_test_split,cross_val_score, ShuffleSplit
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
@@ -15,7 +14,7 @@ from sklearn.decomposition import PCA
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 
-
+from sklearn.cluster import KMeans
 
 import mimetypes
 
@@ -158,12 +157,10 @@ def clean_file(file):
 # Author : Thibault Spriet
 def getDataLabels(data):
     """Gives the data and labels in two different df
-
     Parameters
     ----------
     data : DataFrame
         Cleaned data (labels in the last column)
-
     Returns
     -------
     tuple(DataFrame)
@@ -197,7 +194,6 @@ def train_test(X,y,test_size,crossValidation, cross_size=None):
         between 0 and 1
     crossValidation : bool
     cross_size : float,optional
-
     Returns:
     --------
     X_train : DataFrame
@@ -230,13 +226,12 @@ def PCA(X_train, X_test) :
     ----------
     X_train : DataFrame
     X_test : DataFrame
-
     Returns:
     --------
     X_train_PCA : DataFrame
     X_test_PCA : DataFrame
     '''
-    X = np.concatenate(X_train, X_test)
+    X = np.concatenate((X_train, X_test))
 
     pca = PCA(n_components = 'mle') # we let the algorithm decide of the optimal number of components
     pca.fit(X)
@@ -260,14 +255,12 @@ def PCA(X_train, X_test) :
 # Author : SPRIET Thibault
 def trainSVMlinear(X,y):
     """train an SVM classifier
-
     Parameters
     ----------
     X : Array
         dimension : n_samples x n_feature
     y : Array
         dimension : N_samples x 1. Labels
-
     Returns
     -------
     object
@@ -295,7 +288,6 @@ def trainSVMsigmoid(X,y,gamma):
 # Author : Thibault Spriet
 def trainSVM(X,y,kernel="linear"):
     """train an SVM classifier
-
     Parameters
     ----------
     X : DataFrame
@@ -304,7 +296,6 @@ def trainSVM(X,y,kernel="linear"):
         labels
     kernel : string
         accepted : linear, poly, rbf, sigmoid
-
     Returns
     -------
     Object
@@ -379,14 +370,12 @@ def trainAdaBoost(X,y,n_trees):
 # Author : SPRIET Thibault
 def testSVM(SVMclf,X_test):
     """Test the SVM classifier
-
     Parameters
     ----------
     SVMclf : object
         the trained classifier
     X_test : Array
         n_samples x n_feature
-
     Returns
     -------
     Array
@@ -397,14 +386,12 @@ def testSVM(SVMclf,X_test):
 
 def testLogReg(LRclf, X_test) :
     """ Test the Logistic Regression
-
     Parameters
     ----------
     LRclf : object
         the trained classifier
     X_test : Array
         n_samples x n_features
-
     Returns
     -------
     Array
@@ -434,9 +421,9 @@ def testKmeans(X_train, y_train, X_test) :
     c1 = 0
     for k in range(len(X_train)) :
         if lab[k] == 0 :
-            c0 += y_train[k]
+            c0 += np.array(y_train)[k]
         else :
-            c1 += y_train[k]
+            c1 += np.array(y_train)[k]
     if c0 > c1 : # if we got more y_train = 0 in the cluster 1
         c0 = 1
         c1 = 0
@@ -445,12 +432,14 @@ def testKmeans(X_train, y_train, X_test) :
         c1 = 1
 
     # Classification of X_test
-    y_test = []
+    y_test = np.zeros(len(X_test))
+    i = 0
     for k in range(len(X_train),len(X)) :
         if lab[k] == 0 :
-            y_test += [c0]
+            y_test[i] = c0
         else :
-            y_test += [c1]
+            y_test[i] = c1
+        i += 1
     return(y_test)
 
 
@@ -464,7 +453,6 @@ def testKmeans(X_train, y_train, X_test) :
 
 def CrossValidation(X,y,degree,gamma,r,cv):
     """Find the best classifier with a cross validation
-
     Parameters
     ----------
     X : Array
@@ -474,7 +462,6 @@ def CrossValidation(X,y,degree,gamma,r,cv):
     degree,gamma,r : parameters of the kernels
     cv : a cv-crossed validation
         (fit a model and compute the score 5 consecutive times (with different splits each time))
-
     Returns
     -------
     Best_mean : float
@@ -483,7 +470,6 @@ def CrossValidation(X,y,degree,gamma,r,cv):
         the std of the best classifier
     Best_Classifier : string
         the svm classifier with the best mean
-
     """
     linear_clf = cross_val_score(trainSVMlinear(X,y), X, y, cv=cv,scoring='f1_macro')
     poly_clf = cross_val_score(trainSVMpoly(X,y,degree,gamma,r), X, y, cv=cv,scoring='f1_macro')
@@ -506,7 +492,6 @@ def CrossValidation(X,y,degree,gamma,r,cv):
 # Author : Thibault Spriet
 def crossValidationProcedure(clf,X,y,parameter,values):
     """return best trained classifier
-
     Parameters
     ----------
     clf : Object
@@ -519,7 +504,6 @@ def crossValidationProcedure(clf,X,y,parameter,values):
         name of parameter to tune
     values : list
         allowed values of the parameter
-
     Returns
     -------
     Object
@@ -551,7 +535,6 @@ def crossValidationProcedure(clf,X,y,parameter,values):
 
 def confusionMatrix(y,y_predicted,title=None):
     """plot the confusion matrix
-
     Parameters
     ----------
     y : Array
@@ -560,7 +543,6 @@ def confusionMatrix(y,y_predicted,title=None):
         predicted labels
     title : string, optional
         title of the matrix, by default None
-
     Returns
     -------
     subplot
@@ -573,7 +555,6 @@ def confusionMatrix(y,y_predicted,title=None):
 
 def validateModel(y,y_pred):
     """Print relevant pieces of information to evaluate a model
-
     Parameters
     ----------
     y : Array

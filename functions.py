@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 from sklearn.model_selection import train_test_split,cross_val_score, ShuffleSplit
 from sklearn.svm import SVC
@@ -23,6 +25,7 @@ import mimetypes
 ###############
 #NETOYAGE DE LA TABLE
 #Permet de tester si il reste des valeurs manquantes
+# Author : Julian Cuny-Hubert
 def testMissingValue(data):
     data_na=data.isna()
     for k in data_na:
@@ -35,6 +38,7 @@ def testMissingValue(data):
 
 #Permet de remplacer les valeurs manquantes par
 #la moyenne des colonnes dont les valeurs sont des float ou des int
+# Author : Julian Cuny-Hubert
 def clear_data_Float_Int(data,k,int_or_float):
         moy=data[k].mean()
         data_na=data[k].isna()
@@ -48,6 +52,7 @@ def clear_data_Float_Int(data,k,int_or_float):
                 data.at[value,k]=moy
 #Permet de remplacer les valeurs manquantes par
 #la valeur du string qui est le plus présente des colonnes dont les valeurs ne sont pas des nombres
+# Author : Julian Cuny-Hubert
 def clear_data_String(data,k,data_na):
     list_value={}
     data_na=data_na[k]
@@ -68,6 +73,7 @@ def clear_data_String(data,k,data_na):
 
 #NORMALISATION DU CODE
 #Permet de vérifier qu'on a normalisé et centré la table
+# Author : Julian Cuny-Hubert
 def test_normalize(data):
     data_mean,data_var=data.mean(),data.std()
     data_types=data.dtypes
@@ -82,6 +88,7 @@ def test_normalize(data):
     return True
 
 #Normalise et centre la table
+# Author : Julian Cuny-Hubert
 def normalize_data(data):
     data_mean,data_var=data.mean(),data.std()
     data_types=data.dtypes
@@ -91,6 +98,7 @@ def normalize_data(data):
     return data,test_normalize(data)
 
 #ON REMPLACE LES STRING PAR DES INTS
+# Author : Julian Cuny-Hubert
 def replace_by_Int(data):
     data_types=data.dtypes
     for k in data:
@@ -108,6 +116,7 @@ def replace_by_Int(data):
 
 
 #La fonction qui prend en argument les fichiers et qui remplace les valeurs manquantes
+# Author : Julian Cuny-Hubert
 def clean_file(file):
     print('---START CLEANING : ',file,'---')
     #Ici si ce n'est pas un fichier csv on suppose qu'il n'y a pas forcément
@@ -220,7 +229,8 @@ def train_test(X,y,test_size,crossValidation, cross_size=None):
 # PCA
 ###############
 
-def PCA(X_train, X_test) :
+# Author : Maëlys Durrieu
+def pca(X_train, X_test) :
     '''Applies the pca algorithm on the dataset.
     Parameters:
     ----------
@@ -241,6 +251,30 @@ def PCA(X_train, X_test) :
     X_test_PCA = X[len(X_train):]
     return(X_train_PCA, X_test_PCA)
 
+
+def rep_data(X_train, X_test, y_train, y_test):
+    '''Applies the pca algorithm on the dataset for 3 components.
+    Parameters:
+    ----------
+    X_train : DataFrame
+    X_test : DataFrame
+    Returns:
+    --------
+    X_train_PCA : DataFrame
+    X_test_PCA : DataFrame
+    '''
+    X = np.concatenate((X_train, X_test))
+    y = np.concatenate((y_train, y_test))
+
+    pca = PCA(n_components = 3)
+    pca.fit(X)
+    X = pca.transform(X)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    plt.title("PCA avec 3 composantes")
+    ax.scatter(X[:,0], X[:,1], X[:,2], c = y)
+    return()
 
 ###############
 # End PCA
@@ -308,14 +342,14 @@ def trainSVM(X,y,kernel="linear"):
 
 
 #Logistic Regression
-
+# Author : Maëlys Durrieu
 def trainLogisticRegression(X,y) :
     clf = LogisticRegression()
     clf.fit(X, y)
     return(clf)
 
 
-
+# Author : Maëlys Durrieu
 # Fonction simplificatrice
 def maxl(l) :
     max = l[0]
@@ -326,6 +360,7 @@ def maxl(l) :
             i = k
     return(i)
 
+# Author : Maëlys Durrieu
 # Decision forest
 def trainDecisionForest(X,y,n_trees) :
     # Optimization of the depth of the trees using cross-validation
@@ -333,26 +368,27 @@ def trainDecisionForest(X,y,n_trees) :
     # Define the cvp (cross-validation procedure)
     cvp = ShuffleSplit(n_splits=1000, test_size=1/3, train_size=2/3)
 
-    # Define the max depths between 1 and 10
-    n_depths = 10
-    depths = np.linspace(1, 10, n_depths)
+    # Define the max depths between 1 and 30
+    n_depths = 30
+    depths = np.array([2*k for k in range(1, n_depths)])
 
     # Loop on the max_depth parameter and compute accuracy
     tab_accuracy_tree = np.zeros(n_depths)
-    for i in range(n_depths):
+    for i in range(len(depths)):
         class_tree = DecisionTreeClassifier(max_depth=depths[i])
         tab_accuracy_tree[i] = s.median(cross_val_score(class_tree, X, y, scoring='accuracy', cv=cvp))
     #plot(depths, tab_accuracy_tree)
 
-    opt = maxl(tab_accuracy_tree) + 1 # depth for which we get the maximum accuracy
+    opt = (maxl(tab_accuracy_tree) + 1) * 2 # depth for which we get the maximum accuracy
 
     # Train Decision forest :
-    class_forest = RandomForestClassifier(n_estimators=n_trees, max_depth=3)
+    class_forest = RandomForestClassifier(n_estimators=n_trees, max_depth=opt)
     class_forest.fit(X, y)
     return(class_forest)
 
 
 # Ada Boost classifier
+# Author : Maëlys Durrieu
 def trainAdaBoost(X,y,n_trees):
     class_ada = AdaBoostClassifier(n_estimators=n_trees)
     class_ada.fit(X,y)
@@ -384,6 +420,7 @@ def testSVM(SVMclf,X_test):
     return SVMclf.predict(X_test)
 
 
+# Author : Maëlys Durrieu
 def testLogReg(LRclf, X_test) :
     """ Test the Logistic Regression
     Parameters
@@ -400,14 +437,17 @@ def testLogReg(LRclf, X_test) :
     return(LRclf.predict(X_test))
 
 
+# Author : Maëlys Durrieu
 def testDecisionForest(DFclf, X_test) :
     return(DFclf.predict(X_test))
 
 
+# Author : Maëlys Durrieu
 def testAdaBoost(ABclf, X_test) :
     return(ABclf.predict(X_test))
 
 
+# Author : Maëlys Durrieu
 def testKmeans(X_train, y_train, X_test) :
     """ We apply the kmeans algorithm on the whole dataset, and we look at the repartition of the train part in the clusters. We then classify X_test thanks to the clusters and their caracteristics."""
 

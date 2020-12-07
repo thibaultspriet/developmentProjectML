@@ -368,16 +368,20 @@ def trainSVMlinear(X,y):
     clf.fit(X,y)
     return clf
 
+
+#Author : Théophile Ung
 def trainSVMpoly(X,y,degree,gamma,r):
     clf = SVC(kernel="poly",degree = degree,gamma = gamma,coef0 = r)
     clf.fit(X,y)
     return clf
 
+#Author : Théophile Ung
 def trainSVMrbf(X,y,gamma):
     clf = SVC(kernel="rbf",gamma = gamma)
     clf.fit(X,y)
     return clf
 
+#Author : Théophile Ung
 def trainSVMsigmoid(X,y,gamma):
     clf = SVC(kernel="sigmoid",gamma = gamma)
     clf.fit(X,y)
@@ -555,6 +559,7 @@ def testKmeans(X_train, y_train, X_test) :
 # Cross Validation
 ###############
 
+#Author : Théophile Ung
 def CrossValidation(X,y,degree,gamma,r,cv):
     """Find the best classifier with a cross validation
     Parameters

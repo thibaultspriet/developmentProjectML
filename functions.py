@@ -305,7 +305,7 @@ def pca(X_train, X_test) :
 
 # Author : Maëlys Durrieu
 def rep_data(X_train, X_test, y_train, y_test):
-    '''Applies the pca algorithm on the dataset for 3 components.
+    '''Applies the pca algorithm on the dataset for 3 components and plots the result.
     Parameters:
     ----------
     X_train : DataFrame
@@ -329,6 +329,14 @@ def rep_data(X_train, X_test, y_train, y_test):
 
 # Author : Maëlys Durrieu
 def explained_variance(X_train, X_test) :
+    '''Plots the explained variance as a function of the number of components in the PCA algorithm.
+    Parameters:
+    ----------
+    X_train : DataFrame
+    X_test : DataFrame
+    Returns:
+    --------
+    '''
     X = np.concatenate((X_train, X_test))
     exp_var = []
     for k in range(len(X[0]) + 1) :
@@ -412,6 +420,18 @@ def trainSVM(X,y,kernel="linear"):
 #Logistic Regression
 # Author : Maëlys Durrieu
 def trainLogisticRegression(X,y) :
+    """trains a Logistic Regression
+    Parameters
+    ----------
+    X : DataFrame
+        data features
+    y : Serie
+        labels
+    Returns
+    -------
+    Object
+        trained classifier
+    """
     clf = LogisticRegression()
     clf.fit(X, y)
     return(clf)
@@ -431,8 +451,21 @@ def maxl(l) :
 # Author : Maëlys Durrieu
 # Decision forest
 def trainDecisionForest(X,y,n_trees) :
+    """trains a random forest
+    Parameters
+    ----------
+    X : DataFrame
+        data features
+    y : Serie
+        labels
+    n_trees : int
+        number of trees we want to get in the random forest
+    Returns
+    -------
+    Object
+        trained classifier
+    """
     # Optimization of the depth of the trees using cross-validation
-
     # Define the cvp (cross-validation procedure)
     cvp = ShuffleSplit(n_splits=1000, test_size=1/3, train_size=2/3)
 
@@ -458,6 +491,20 @@ def trainDecisionForest(X,y,n_trees) :
 # Ada Boost classifier
 # Author : Maëlys Durrieu
 def trainAdaBoost(X,y,n_trees):
+    """trains an Ada Boost classifier
+    Parameters
+    ----------
+    X : DataFrame
+        data features
+    y : Serie
+        labels
+    n_trees : int
+        number of trees we want to get in the random forest
+    Returns
+    -------
+    Object
+        trained classifier
+    """
     class_ada = AdaBoostClassifier(n_estimators=n_trees)
     class_ada.fit(X,y)
     return(class_ada)
@@ -507,17 +554,54 @@ def testLogReg(LRclf, X_test) :
 
 # Author : Maëlys Durrieu
 def testDecisionForest(DFclf, X_test) :
+    """ Test the random forest
+    Parameters
+    ----------
+    DFclf : object
+        the trained classifier
+    X_test : Array
+        n_samples x n_features
+    Returns
+    -------
+    Array
+        classification labels
+    """
     return(DFclf.predict(X_test))
 
 
 # Author : Maëlys Durrieu
 def testAdaBoost(ABclf, X_test) :
+    """ Test the Ada Boost classifier
+    Parameters
+    ----------
+    ABclf : object
+        the trained classifier
+    X_test : Array
+        n_samples x n_features
+    Returns
+    -------
+    Array
+        classification labels
+    """
     return(ABclf.predict(X_test))
 
 
 # Author : Maëlys Durrieu
 def testKmeans(X_train, y_train, X_test) :
-    """ We apply the kmeans algorithm on the whole dataset, and we look at the repartition of the train part in the clusters. We then classify X_test thanks to the clusters and their caracteristics."""
+    """ We apply the kmeans algorithm on the whole dataset, and we look at the repartition of the train part in the clusters. We then classify X_test thanks to the clusters and their caracteristics.
+    Parameters
+    ----------
+    X_train : DataFrame
+        data features
+    y_train : Serie
+        labels
+    X_test : DataFrame
+        data features
+    Returns
+    -------
+    Array
+        classification labels
+    """
 
     # Kmeans algorithm on the whole dataset
     X = np.concatenate((X_train, X_test))

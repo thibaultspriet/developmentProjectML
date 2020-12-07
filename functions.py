@@ -272,7 +272,6 @@ def rep_data(X_train, X_test, y_train, y_test):
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    plt.title("PCA avec 3 composantes")
     ax.scatter(X[:,0], X[:,1], X[:,2], c = y)
     return()
 

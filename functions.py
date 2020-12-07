@@ -721,6 +721,7 @@ def crossValidationProcedure(clf,X,y,parameter,values):
 # Validate model
 ###############
 
+#Author : Théophile Ung
 def confusionMatrix(y,y_predicted,title=None):
     """plot the confusion matrix
     Parameters
@@ -741,6 +742,7 @@ def confusionMatrix(y,y_predicted,title=None):
     ax.set_title(title)
     return ax
 
+#Author : Théophile Ung
 def validateModel(y,y_pred):
     """Print relevant pieces of information to evaluate a model
     Parameters

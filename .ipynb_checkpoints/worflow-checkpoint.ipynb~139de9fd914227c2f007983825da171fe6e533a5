@@ -14,7 +14,7 @@
    "outputs": [],
    "source": [
     "# Import useful functions and librairies\n",
-    "from functions import * \n",
+    "from functions import * #clean_file, normalize_data, train_test, trainSVM,getDataLabels,confusionMatrix,testSVM, validateModel, trainLogisticRegression, crossValidationProcedure, testLogReg\n",
     "import numpy as np\n",
     "%matplotlib inline"
    ]

@@ -243,37 +243,50 @@ def pca(X_train, X_test) :
     '''
     X = np.concatenate((X_train, X_test))
 
-    pca = PCA(n_components = 'mle') # we let the algorithm decide of the optimal number of components
+    pca = PCA(n_components = 0.99)
     pca.fit(X)
     X = pca.transform(X)
 
     X_train_PCA = X[:len(X_train)]
     X_test_PCA = X[len(X_train):]
-    return(X_train_PCA, X_test_PCA)
+    return(X_train_PCA, X_test_PCA, pca.n_components_)
 
-
+# Author : Maëlys Durrieu
 def rep_data(X_train, X_test, y_train, y_test):
     '''Applies the pca algorithm on the dataset for 3 components.
     Parameters:
     ----------
     X_train : DataFrame
     X_test : DataFrame
+    y_train : DataFrame
+    y_test : DataFrame
     Returns:
     --------
-    X_train_PCA : DataFrame
-    X_test_PCA : DataFrame
     '''
     X = np.concatenate((X_train, X_test))
     y = np.concatenate((y_train, y_test))
 
-    pca = PCA(n_components = 3)
-    pca.fit(X)
-    X = pca.transform(X)
+    pca3 = PCA(n_components = 3)
+    pca3.fit(X)
+    X = pca3.transform(X)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     plt.title("PCA avec 3 composantes")
     ax.scatter(X[:,0], X[:,1], X[:,2], c = y)
+    return()
+
+# Author : Maëlys Durrieu
+def explained_variance(X_train, X_test) :
+    X = np.concatenate((X_train, X_test))
+    exp_var = []
+    for k in range(len(X[0]) + 1) :
+        pcak = PCA(n_components = k)
+        pcak.fit(X)
+        X_new = pcak.transform(X)
+        exp_var += [np.sum(pcak.explained_variance_ratio_)]
+
+    plt.plot(exp_var)
     return()
 
 ###############

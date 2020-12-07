@@ -27,6 +27,13 @@ import mimetypes
 #Permet de tester si il reste des valeurs manquantes
 # Author : Julian Cuny-Hubert
 def testMissingValue(data):
+    """
+    Args:
+        data : DataFrame
+
+    Returns:
+        Boolean
+    """
     data_na=data.isna()
     for k in data_na:
         for c in data_na[k]:
@@ -40,20 +47,40 @@ def testMissingValue(data):
 #la moyenne des colonnes dont les valeurs sont des float ou des int
 # Author : Julian Cuny-Hubert
 def clear_data_Float_Int(data,k,int_or_float):
-        moy=data[k].mean()
-        data_na=data[k].isna()
-        if int_or_float==np.int:
-            if moy-np.floor(moy)<0.5:
-                    moy=int(moy)
-            else:
-                    moy=int(moy + 1)
-        for value in range(len(data_na)):
-            if data_na[value]:
-                data.at[value,k]=moy
+    """
+    Args:
+        data : DataFrame
+        k : STRING
+        int_or_float = dtypes
+
+    Returns:
+        None
+    """
+    moy=data[k].mean()
+    data_na=data[k].isna()
+    if int_or_float==np.int:
+        if moy-np.floor(moy)<0.5:
+                moy=int(moy)
+        else:
+                moy=int(moy + 1)
+    for value in range(len(data_na)):
+        if data_na[value]:
+            data.at[value,k]=moy
+
+
 #Permet de remplacer les valeurs manquantes par
 #la valeur du string qui est le plus présente des colonnes dont les valeurs ne sont pas des nombres
 # Author : Julian Cuny-Hubert
 def clear_data_String(data,k,data_na):
+    """
+    Args:
+        data : DataFrame
+        k : STRING
+        data_na = DataFrame
+
+    Returns:
+        None
+    """
     list_value={}
     data_na=data_na[k]
     for value in range(len(data_na)):
@@ -75,6 +102,13 @@ def clear_data_String(data,k,data_na):
 #Permet de vérifier qu'on a normalisé et centré la table
 # Author : Julian Cuny-Hubert
 def test_normalize(data):
+    """
+    Args:
+        data : DataFrame
+
+    Returns:
+        Boolean
+    """
     data_mean,data_var=data.mean(),data.std()
     data_types=data.dtypes
     for index in data:
@@ -90,6 +124,12 @@ def test_normalize(data):
 #Normalise et centre la table
 # Author : Julian Cuny-Hubert
 def normalize_data(data):
+    """
+    Args:
+        data : DataFrame
+    Returns:
+        DataFrame,Boolean
+    """
     data_mean,data_var=data.mean(),data.std()
     data_types=data.dtypes
     for index in data:
@@ -100,6 +140,12 @@ def normalize_data(data):
 #ON REMPLACE LES STRING PAR DES INTS
 # Author : Julian Cuny-Hubert
 def replace_by_Int(data):
+    """
+    Args:
+        data : DataFrame
+    Returns:
+        None
+    """
     data_types=data.dtypes
     for k in data:
         if data_types[k]==np.object:
@@ -118,6 +164,12 @@ def replace_by_Int(data):
 #La fonction qui prend en argument les fichiers et qui remplace les valeurs manquantes
 # Author : Julian Cuny-Hubert
 def clean_file(file):
+    """
+    Args:
+        data : DataFrame
+    Returns:
+        DataFrame
+    """
     print('---START CLEANING : ',file,'---')
     #Ici si ce n'est pas un fichier csv on suppose qu'il n'y a pas forcément
     #les noms de colonnes il faut donc éciter que la première ligne devienne

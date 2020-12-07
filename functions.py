@@ -172,7 +172,7 @@ def clean_file(file):
     """
     print('---START CLEANING : ',file,'---')
     #Ici si ce n'est pas un fichier csv on suppose qu'il n'y a pas forcément
-    #les noms de colonnes il faut donc éciter que la première ligne devienne
+    #les noms de colonnes il faut donc éviter que la première ligne devienne
     #le header
     if file[-3:] != 'csv':
         data = pd.read_csv(file,header=None)
@@ -187,7 +187,7 @@ def clean_file(file):
                 data.at[c,k]=data[k][c].replace(" ","")
                 data.at[c,k]=data[k][c].replace("\t","")
                 #Si un des NaN avait ce genre de caractères alors ils n'étaient pas repérés et comptaient
-                #Pour une valeur: On modifie donc la table data_na pour des valeurs en string
+                #Pour une valeur: On modifie donc la table data_na 
                 if data[k][c]=="?":
                     data_na.at[c,k]=False
     for index in data:
@@ -209,11 +209,6 @@ def clean_file(file):
     print('---END CLEANING :',file,'---\n')
     return data
 
-#data_k = clean_file('kidney_disease.csv')
-#data_b = clean_file('data_banknote_authentication.txt')
-
-#data_k.to_csv('kidney_disease_cleaned.csv')
-#data_b.to_csv('data_banknote_cleaned.csv')
 
 # Author : Thibault Spriet
 def getDataLabels(data):

@@ -1,39 +1,45 @@
 # Development project in Machine Learning
 
-## Git Workflow
+This is a machine learning project developed for a project at IMT Atlantique. This is a final project of a course entitled **Introduction to Theory and Practice of machine learning**.
 
-### Prerequisite
-You need to install git : [download](https://git-scm.com/book/fr/v2/Démarrage-rapide-Installation-de-Git)
+## About the project ❓
 
-### Cloning the project
-```shell
-cd <path_wanted_to_dowload_project>
-git clone https://github.com/thibaultspriet/developmentProjectML.git 
-```
+The main idea of this project was to develop a workflow of machine learning algorithms that can be applied on different datasets. This workflow had to implement **general** functions in order to preprocess the dataset, train a model and analyze the results.
 
-### Add your modification
-You work locally on the files. Then you need to add the edits on the remote repository in order that everyone has access to them.
-```shell
-git add .
-git commit -m "message to explain changes"
-git push origin master
-```
+## Datasets 📖
 
-### Get modifications from other collaborator
-Before edditing your functions, get the latest changes from the remote repository :
-```shell 
-git pull origin master
-```
+We worked on two different well known datasets :
 
-## Machine learning workflow
-### Import data
-### Clean data
-* Replace missing values
-* Replace categorical values by int
-### Split data
-* Training and test if there is not parameter to adjust model
-* Training / Cross Validation / Test if there is paramater to adjust model
-### Train model
-* Get the classifier
-### Validate model
-* Test the classifier on the model
+* [Kidney Disease](https://github.com/thibaultspriet/developmentProjectML/blob/master/kidney_disease.csv) 
+* [Banknote](https://github.com/thibaultspriet/developmentProjectML/blob/master/data_banknote_authentication.txt)
+
+The two datasets are different in many ways (number of features, types of features ...).
+
+## What we did 💻
+
+For this project we implement functions for these goals : 
+
+* prepare / clean datasets
+* split the datasets into training / testing
+* apply PCA
+* train models
+* cross validate models
+* test models
+* Analyze performances. 
+
+Finally we implement these different machine learning algorithms :
+
+* SVM (support vector machine)
+* Logistic Regression
+* Decision Forest
+
+We chose [Scikit-learn](https://scikit-learn.org/stable/) to build our models.
+
+## Prerequisites
+
+If you want to run are use this project you will nedd :
+
+* Python
+* Numpy, Pandas, ScikitLearn
+
+And of course some basis on Machine Learning
